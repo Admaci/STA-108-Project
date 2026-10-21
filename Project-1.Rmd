@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-senic <- read.csv("~/STA108/Project/SENIC-P1.csv")
+senic <- read.csv("SENIC-P1.csv")
 set.seed(36473)
 idx <- sample(nrow(senic), 85)
 mydata <- senic[sort(idx), ]
@@ -78,6 +78,8 @@ id.outliers <- mydata$id[mydata$length %in% outliers]
 id.outliers
 ```
 
+# III
+
 ### Intercept and Slope of Models
 
 ```{r}
@@ -120,4 +122,31 @@ census.r.squared
 xray.r.squared
 facility.r.squared
 ```
+
+### Plots with regression line
+
+```{r}
+ggplot(data = mydata, aes(x = infection, y = length)) +
+  geom_point(color = "seagreen", size = 2) +
+  geom_abline(intercept = b0.infection, slope = b1.infection, lwd = 1, color = "firebrick") +
+  labs(title = "Length of Stay vs Infection", x = "Infection", y = "Length of Stay")
+
+ggplot(data = mydata, aes(x = census, y = length)) +
+  geom_point(color = "seagreen", size = 2) +
+  geom_abline(intercept = b0.census, slope = b1.census, lwd = 1, color ="firebrick") +
+  labs(title = "Length of Stay vs Census", x = "Census", y = "Length of Stay")
+
+ggplot(data = mydata, aes(x = xray, y = length)) +
+  geom_point(color = "seagreen", size = 2) +
+  geom_abline(intercept = b0.xray, slope = b1.xray, lwd = 1, color = "firebrick") +
+  labs(title = "Length of Stay vs X-Ray", x = "X-Ray", y = "Length of Stay")
+
+ggplot(data = mydata, aes(x = facility, y = length)) +
+  geom_point(color = "seagreen", size = 2) +
+  geom_abline(intercept = b0.facility, slope = b1.facility, lwd = 1, color = "firebrick") +
+  labs(title = "Length of Stay vs Facility", x = "Facility", y = "Length of Stay")
+```
+
+
+
 
