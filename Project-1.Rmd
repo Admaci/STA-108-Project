@@ -148,5 +148,13 @@ ggplot(data = mydata, aes(x = facility, y = length)) +
 ```
 
 
+### Sorting by R^2
+
+```{r}
+summary(infection.model)$r.squared
+summary(census.model)$r.squared
+summary(xray.model)$r.squared
+summary(facility.model)$r.squared
+```
 
 
