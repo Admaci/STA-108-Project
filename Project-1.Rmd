@@ -1,13 +1,13 @@
 ---
 title: "Project-1"
-author: "Adam Maciaszek, Scott Woolley, Muhamed Hussein, Reagan Bush"
+author: "Adam Maciaszek, Scott Woolley, Mohamed Hussein, Reagan Bush"
 date: "2026-10-21"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-senic <- read.csv("SENIC-P1.csv")
+senic <- read.csv("~/STA108/Project/SENIC-P1.csv")
 set.seed(36473)
 idx <- sample(nrow(senic), 85)
 mydata <- senic[sort(idx), ]
@@ -69,5 +69,55 @@ ggplot(mydata, aes(x = length)) +
     title = "Frequency of Length of Stay", x = "Length", y = "Frequency"
   )
 ```
+## Outliers of hospital length
 
+```{r}
+outliers <- boxplot(mydata$length, plot = FALSE)$out
+boxplot(mydata$length)
+id.outliers <- mydata$id[mydata$length %in% outliers]
+id.outliers
+```
+
+### Intercept and Slope of Models
+
+```{r}
+b0.infection <- coef(infection.model)[1]
+b1.infection <- coef(infection.model)[2]
+b0.census <- coef(census.model)[1]
+b1.census <- coef(census.model)[2]
+b0.xray <- coef(xray.model)[1]
+b1.xray <- coef(xray.model)[2]
+b0.facility <- coef(facility.model)[1]
+b1.facility <- coef(facility.model)[2]
+b0.infection
+b1.infection
+b0.census
+b1.census
+b0.xray
+b1.xray
+b0.facility
+b1.facility
+```
+
+### MSE and R^2
+
+```{r}
+MSE.infection <- mean(infection.model$residuals^2)
+MSE.infection
+MSE.census <- mean(census.model$residuals^2)
+MSE.census
+MSE.xray <- mean(xray.model$residuals^2)
+MSE.xray
+MSE.facility <- mean(facility.model$residuals^2)
+MSE.facility
+
+infection.r.squared <- summary(infection.model)$r.squared
+census.r.squared <- summary(census.model)$r.squared
+xray.r.squared <- summary(xray.model)$r.squared
+facility.r.squared <- summary(facility.model)$r.squared
+infection.r.squared
+census.r.squared
+xray.r.squared
+facility.r.squared
+```
 
