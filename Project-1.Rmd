@@ -1,0 +1,32 @@
+---
+title: "Project-1"
+author: "Adam Maciaszek, Scott Woolley, Muhamed Hussein, Reagan Bush"
+date: "2026-10-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+senic <- read.csv("SENIC-P1.csv")
+set.seed(36473)
+idx <- sample(nrow(senic), 85)
+mydata <- senic[sort(idx), ]
+holdout <- senic[-idx, ]
+```
+
+
+# II
+
+```{r}
+infection.model <- lm(length ~ infection, data = mydata)
+census.model <- lm(length ~ census, data = mydata)
+xray.model <- lm(length ~ xray, data = mydata)
+facility.model <- lm(length ~ facility, data = mydata)
+```
+
+
+```{r}
+summary(length, data = mydata)
+```
+
+
