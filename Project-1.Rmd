@@ -12,6 +12,8 @@ set.seed(36473)
 idx <- sample(nrow(senic), 85)
 mydata <- senic[sort(idx), ]
 holdout <- senic[-idx, ]
+
+library(tidyverse)
 ```
 
 
@@ -24,9 +26,48 @@ xray.model <- lm(length ~ xray, data = mydata)
 facility.model <- lm(length ~ facility, data = mydata)
 ```
 
+Note: Probably a much better way to do this so if you can clean it up feel free to change the code
+```{r}
+print("length")
+length(mydata$length)
+mean(mydata$length)
+sqrt(var(mydata$length))
+min(mydata$length)
+max(mydata$length)
+print("infection")
+length(mydata$infection)
+mean(mydata$infection)
+sqrt(var(mydata$infection))
+min(mydata$infection)
+max(mydata$infection)
+print("census")
+length(mydata$census)
+mean(mydata$census)
+sqrt(var(mydata$census))
+min(mydata$census)
+max(mydata$census)
+print("xray")
+length(mydata$xray)
+mean(mydata$xray)
+sqrt(var(mydata$xray))
+min(mydata$xray)
+max(mydata$xray)
+print("facility")
+length(mydata$facility)
+mean(mydata$facility)
+sqrt(var(mydata$facility))
+min(mydata$facility)
+max(mydata$facility)
+```
+
+
+## Distribution of length
 
 ```{r}
-summary(length, data = mydata)
+ggplot(mydata, aes(x = length)) + 
+  geom_histogram(bins = 15, fill = "steelblue", color = "black") + labs(
+    title = "Frequency of Length of Stay", x = "Length", y = "Frequency"
+  )
 ```
 
 
