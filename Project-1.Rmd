@@ -131,25 +131,27 @@ yl = c(5, 25)
 ggplot(data = mydata, aes(x = infection, y = length)) +
   geom_point(color = "seagreen", size = 2) +
   geom_abline(intercept = b0.infection, slope = b1.infection, lwd = 1, color = "firebrick") +
-  labs(title = "Length of Stay vs Infection", x = "Infection Risk (%)", y = "Length of Stay") +
+  labs(title = "Higher infection risk results in longer stays", 
+       x = "Infection Risk (%)", y = "Length of Stay (days)") +
   ylim(yl)
 
 ggplot(data = mydata, aes(x = census, y = length)) +
   geom_point(color = "seagreen", size = 2) +
   geom_abline(intercept = b0.census, slope = b1.census, lwd = 1, color ="firebrick") +
-  labs(title = "Length of Stay vs Census", x = "Average Daily Census", y = "Length of Stay") +
+  labs(title = "Higher daily census typically results in longer stays",
+       x = "Average Daily Census", y = "Length of Stay (days)") +
   ylim(yl)
 
 ggplot(data = mydata, aes(x = xray, y = length)) +
   geom_point(color = "seagreen", size = 2) +
   geom_abline(intercept = b0.xray, slope = b1.xray, lwd = 1, color = "firebrick") +
-  labs(title = "Length of Stay vs X-Ray", x = "Number of X-Ray's (per 100 people)", y = "Length of Stay") +
+  labs(title = "The more xrays done the longer the average stay", x = "Number of X-Ray's (per 100 people)", y = "Length of Stay (days)") +
   ylim(yl)
 
 ggplot(data = mydata, aes(x = facility, y = length)) +
   geom_point(color = "seagreen", size = 2) +
   geom_abline(intercept = b0.facility, slope = b1.facility, lwd = 1, color = "firebrick") +
-  labs(title = "Length of Stay vs Facility", x = "Available Facilities (% of 35)", y = "Length of Stay") +
+  labs(title = "The more facilities the longer the typical stay", x = "Available Facilities (% of 35)", y = "Length of Stay (days)") +
   ylim(yl)
 
 ```
@@ -165,13 +167,19 @@ summary(facility.model)$r.squared
 ```
 
 ```{r}
-mydata$id[order(resid(infection.model))[1:3]]
-mydata$id[order(resid(census.model))[1:2]]
+sort(infection.model$residuals)
+sort(census.model$residuals)
+```
+
+
+```{r}
+mydata$id[order(abs(resid(infection.model)), decreasing = TRUE)[1:3]]
+mydata$id[order(abs(resid(census.model)), decreasing = TRUE)[1:3]]
 ```
 
 ```{r}
-drop1 <- c("76", "83", "63")
-drop2 <- c("65", "26")
+drop1 <- c("47", "112", "76", "83")
+drop2 <- c("47")
 
 infection.drop <- lm(length ~ infection, data = subset(mydata, !(id %in% drop1)))
 census.drop <- lm(length ~ census, data = subset(mydata, !(id %in% drop2)))
