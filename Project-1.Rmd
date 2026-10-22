@@ -179,9 +179,6 @@ census.drop <- lm(length ~ census, data = subset(mydata, !(id %in% drop2)))
 summary(infection.model)$r.squared; summary(infection.drop)$r.squared
 summary(census.model)$r.squared; summary(census.drop)$r.squared
 
-
-plot(infection.drop)
-plot(census.drop)
 ```
 
 ```{r}
