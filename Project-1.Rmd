@@ -126,7 +126,6 @@ facility.r.squared
 ### Plots with regression line
 
 ```{r panels}
-par(mfrow = c(1,4))
 yl = c(5, 25)
 
 ggplot(data = mydata, aes(x = infection, y = length)) +
@@ -175,10 +174,34 @@ drop1 <- c("76", "83", "63")
 drop2 <- c("65", "26")
 
 infection.drop <- lm(length ~ infection, data = subset(mydata, !(id %in% drop1)))
-census.drop <- lm(length ~ infection, data = subset(mydata, !(id %in% drop2)))
+census.drop <- lm(length ~ census, data = subset(mydata, !(id %in% drop2)))
 
 summary(infection.model)$r.squared; summary(infection.drop)$r.squared
 summary(census.model)$r.squared; summary(census.drop)$r.squared
+
+
+plot(infection.drop)
+plot(census.drop)
+```
+
+```{r}
+infection_outlier <- subset(mydata, id %in% drop1)
+ggplot(data = mydata, aes(x = infection, y = length, label = )) +
+  geom_point(color = "seagreen", size = 2) +
+  geom_abline(intercept = b0.infection, slope = b1.infection, lwd = 1, color = "firebrick") +
+  labs(title = "Length of Stay vs Infection", x = "Infection Risk (%)", y = "Length of Stay") +
+  ylim(yl) +
+  geom_text(data = infection_outlier, aes(label = id),
+            hjust = .5, vjust = 1, color = "red", position = position_jitter(width = .115))
+
+census_outlier <- subset(mydata, id %in% drop2)
+ggplot(data = mydata, aes(x = census, y = length)) +
+  geom_point(color = "seagreen", size = 2) +
+  geom_abline(intercept = b0.census, slope = b1.census, lwd = 1, color ="firebrick") +
+  labs(title = "Length of Stay vs Census", x = "Average Daily Census", y = "Length of Stay") +
+  ylim(yl) +
+  geom_text(data = census_outlier, aes(label = id),
+            hjust = .5, vjust = 1.5, color = "red")
 ```
 
 
