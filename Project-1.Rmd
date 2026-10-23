@@ -223,22 +223,14 @@ ggplot(data = mydata, aes(x = census, y = length)) +
   theme(plot.title = element_text(hjust = .5))
 ```
 
-
+# V
 
 ```{r}
-cat("V")
 
-cat("95% confidence interval")
-cat(confint(infection.model, "infection", level = 0.95))
-
-cat("test statistic")
-cat(summary(infection.model)$coefficients["infection", "t value"])
-
-cat("p-value")
-cat(summary(infection.model)$coefficients["infection", "Pr(>|t|)"])
-
-cat("degrees of freedom")
-cat(summary(infection.model)$df[2])
+confint(infection.model, "infection", level = 0.95)
+summary(infection.model)$coefficients["infection", "t value"]
+summary(infection.model)$coefficients["infection", "Pr(>|t|)"]
+summary(infection.model)$df[2]
 ```
 
 
