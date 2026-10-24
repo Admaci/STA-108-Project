@@ -2,7 +2,7 @@
 title: "Project-1"
 author: "Adam Maciaszek, Scott Woolley, Mohamed Hussein, Reagan Bush"
 date: "2026-10-21"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -15,6 +15,7 @@ holdout <- senic[-idx, ]
 
 library(tidyverse)
 library(knitr)
+library(kableExtra)
 ```
 
 
@@ -29,6 +30,18 @@ facility.model <- lm(length ~ facility, data = mydata)
 
 Note: Probably a much better way to do this so if you can clean it up feel free to change the code
 ```{r}
+means <- c(mean(mydata$length), mean(mydata$infection), mean(mydata$census),
+           mean(mydata$xray), mean(mydata$facility))
+lengths <- c(length(mydata$length), length(mydata$infection), length(mydata$census), length(mydata$xray), length(mydata$facility))
+sd <- c(sqrt(var(mydata$length)), sqrt(var(mydata$infection)), sqrt(var(mydata$census)), sqrt(var(mydata$xray)), sqrt(var(mydata$facility)))
+mins <- c(min(mydata$length), min(mydata$infection), min(mydata$census), min(mydata$xray), min(mydata$facility))
+maxs <- c(max(mydata$length), max(mydata$infection), max(mydata$census), max(mydata$xray), max(mydata$facility))
+names <- c("Length of Average Stay", "Infection Rate", "Average Daily Census", "X-Rays performed per 100 patients", "Percent of Available Facilities")
+
+stat.summary <- data.frame(" " = names, "Sample Size" = lengths, Mean = means, "Standard Deviation" = sd, Minimum = mins, Maximum = maxs, check.names = FALSE)
+numerical.summary <- kable(stat.summary, align = "c", caption = "Numerical Summary of Dataset", digits = 4)
+kable_styling(numerical.summary, bootstrap_options = c("bordered"))
+
 print("length")
 length(mydata$length)
 mean(mydata$length)
@@ -122,6 +135,17 @@ infection.r.squared
 census.r.squared
 xray.r.squared
 facility.r.squared
+
+
+b0.list <- c(b0.infection, b0.census, b0.xray, b0.facility)
+b1.list <- c(b1.infection, b1.census, b1.xray, b1.facility)
+MSE.list <- c(MSE.infection, MSE.census, MSE.xray, MSE.facility)
+R.squared.list <- c(infection.r.squared, census.r.squared, xray.r.squared, facility.r.squared)
+model.list <- c("Length ~ Infection", "Length ~ Census", "Length ~ X-Ray", "Length ~ Facility")
+
+model.summary <- data.frame("Model" = model.list, "b<sub>0</sub>" = b0.list, "b<sub>1</sub>" = b1.list, "MSE" = MSE.list, "$R^2$" = R.squared.list)
+kable(model.summary, align = "c", caption = "Model Parameters", digits = 4, col.names = c(" ", "$\\beta_0$", "$\\beta_1$", "MSE", "$R^2$"), escape = FALSE, row.names = FALSE)
+
 ```
 
 ### Plots with regression line
@@ -259,8 +283,20 @@ band <- data.frame(Xh       = xh3$infection,
                    CI_upper = p$fit + tval * p$se.fit,
                    WH_lower = p$fit - W * p$se.fit,
                    WH_upper = p$fit + W * p$se.fit)
-kable(band, digits = 2, row.names = FALSE, caption = "Pointwise 95% CI and Working-Hotelling band")
+kable(band, digits = 2, row.names = FALSE, caption = "Pointwise 95% CI and Working-Hotelling band", col.names = c("$X_h$", "$Y_{hat}$", "$CI_{lower}$", "$CI_{upper}$", "$WH_{lower}$", "$WH_{upper}$"), escape = FALSE)
 ```
 
 
+### Visual Final Model Check
 
+```{r}
+top.outliers <- mydata$id[order(abs(resid(infection.model)), decreasing = TRUE)[1:4]]
+
+outlier.index <- ifelse(mydata$id %in% top.outliers, mydata$id, " ")
+
+plot(infection.model, which=2, id.n=4, pch = 21, col = "white", bg = "seagreen", xlab = "Theoretical Quantiles", sub.caption = "")
+plot(infection.model$fitted.values, infection.model$residuals, main = "Residual against Infection Risk", ylab = "Residuals", xlab = "Infection Risk", pch = 21, bg = "seagreen", col = "white")
+abline(h = 0, col = "red", lwd = 2)
+text(infection.model$fitted.values[outlier.index], infection.model$residuals[outlier.index], outlier.index, pos = c(4, 4, 4, 4), col = "red")
+
+```
