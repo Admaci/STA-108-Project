@@ -41,37 +41,6 @@ names <- c("Length of Average Stay", "Infection Rate", "Average Daily Census", "
 stat.summary <- data.frame(" " = names, "Sample Size" = lengths, Mean = means, "Standard Deviation" = sd, Minimum = mins, Maximum = maxs, check.names = FALSE)
 numerical.summary <- kable(stat.summary, align = "c", caption = "Numerical Summary of Dataset", digits = 4)
 kable_styling(numerical.summary, bootstrap_options = c("bordered"))
-
-print("length")
-length(mydata$length)
-mean(mydata$length)
-sqrt(var(mydata$length))
-min(mydata$length)
-max(mydata$length)
-print("infection")
-length(mydata$infection)
-mean(mydata$infection)
-sqrt(var(mydata$infection))
-min(mydata$infection)
-max(mydata$infection)
-print("census")
-length(mydata$census)
-mean(mydata$census)
-sqrt(var(mydata$census))
-min(mydata$census)
-max(mydata$census)
-print("xray")
-length(mydata$xray)
-mean(mydata$xray)
-sqrt(var(mydata$xray))
-min(mydata$xray)
-max(mydata$xray)
-print("facility")
-length(mydata$facility)
-mean(mydata$facility)
-sqrt(var(mydata$facility))
-min(mydata$facility)
-max(mydata$facility)
 ```
 
 
@@ -119,22 +88,14 @@ b1.facility
 
 ```{r}
 MSE.infection <- mean(infection.model$residuals^2)
-MSE.infection
 MSE.census <- mean(census.model$residuals^2)
-MSE.census
 MSE.xray <- mean(xray.model$residuals^2)
-MSE.xray
 MSE.facility <- mean(facility.model$residuals^2)
-MSE.facility
 
 infection.r.squared <- summary(infection.model)$r.squared
 census.r.squared <- summary(census.model)$r.squared
 xray.r.squared <- summary(xray.model)$r.squared
 facility.r.squared <- summary(facility.model)$r.squared
-infection.r.squared
-census.r.squared
-xray.r.squared
-facility.r.squared
 
 
 b0.list <- c(b0.infection, b0.census, b0.xray, b0.facility)
@@ -186,26 +147,18 @@ ggplot(data = mydata, aes(x = facility, y = length)) +
 
 ```
 
-
-### Sorting by R^2
-
-```{r}
-summary(infection.model)$r.squared
-summary(census.model)$r.squared
-summary(xray.model)$r.squared
-summary(facility.model)$r.squared
-```
+### looking for hospital ids with outliers
 
 ```{r}
 sort(infection.model$residuals)
 sort(census.model$residuals)
 ```
 
-
+### removing outliers
 
 ```{r}
-mydata$id[order(abs(resid(infection.model)), decreasing = TRUE)[1:3]]
-mydata$id[order(abs(resid(census.model)), decreasing = TRUE)[1:3]]
+mydata$id[order(abs(resid(infection.model)), decreasing = TRUE)[1:4]]
+mydata$id[order(abs(resid(census.model)), decreasing = TRUE)[1]]
 ```
 
 
@@ -222,7 +175,7 @@ summary(census.model)$r.squared; summary(census.drop)$r.squared
 
 ```
 
-
+###labeling outliers on plots
 
 ```{r}
 infection_outlier <- subset(mydata, id %in% drop1)
@@ -258,6 +211,7 @@ summary(infection.model)$df[2]
 ```
 
 
+# VII
 
 ```{r ci-pi}
 xh <- data.frame(infection = 4.4)
