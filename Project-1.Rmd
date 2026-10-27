@@ -2,7 +2,9 @@
 title: "Project-1"
 author: "Adam Maciaszek, Scott Woolley, Mohamed Hussein, Reagan Bush"
 date: "2026-10-21"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -28,7 +30,6 @@ xray.model <- lm(length ~ xray, data = mydata)
 facility.model <- lm(length ~ facility, data = mydata)
 ```
 
-Note: Probably a much better way to do this so if you can clean it up feel free to change the code
 ```{r}
 means <- c(mean(mydata$length), mean(mydata$infection), mean(mydata$census),
            mean(mydata$xray), mean(mydata$facility))
@@ -228,7 +229,7 @@ W    <- sqrt(2 * qf(0.95, df1 = 2, df2 = n - 2))
 tval
 W
 
-xh3 <- data.frame(infection = c(1.5, 3.0, 6.0))
+xh3 <- data.frame(infection = c(2.5, 4.5, 7.0))
 p   <- predict(infection.model, newdata = xh3, se.fit = TRUE)   # se.fit is s{Yhat_h}
 
 band <- data.frame(Xh       = xh3$infection,
