@@ -1,0 +1,8 @@
+---
+title: "Project-2"
+author: "Adam Maciaszek, Scott Woolley, Muhamed Hussein, Reagan Bush"
+date: "2026-11-15"
+output: html_document
+---
+
+
