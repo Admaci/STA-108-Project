@@ -22,6 +22,7 @@ anyNA(dat)
 
 head(train)
 
+library(ggplot2)
 library(knitr)
 library(kableExtra)
 ```
