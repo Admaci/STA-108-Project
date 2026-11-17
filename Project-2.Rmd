@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 dat <- read.csv("real_estate_dataset.csv")
+options(scipen = 999)
 # Drops Id column
 dat[1] <- NULL
 
@@ -47,8 +48,7 @@ kable(data.reqs.check, align = "c", caption = "Dataset Requirement Check", forma
 
 ```{r}
 vars <- train[, c("Square_Feet", "Num_Bedrooms", "Num_Bathrooms",
-                  "Num_Floors", "Year_Built", "Has_Garden", "Has_Pool",
-                  "Garage_Size")]
+                  "Num_Floors", "Year_Built", "Garage_Size")]
 eda <- data.frame(
   n = sapply(vars, length),
   mean = sapply(vars, mean),
@@ -57,15 +57,17 @@ eda <- data.frame(
   Max = sapply(vars, max)
 )
 
+
 kable(eda, digits = 2, caption = "Summary Statistics, 400 Houses")
 ```
 
 
 ```{r}
-fit <- lm(Price ~ Square_Feet + Num_Bedrooms + Num_Bathrooms + Num_Floors + 
-            Year_Built + Garage_Size + Has_Garden + Has_Pool, data = train)
-summary(fit)
-
+pairs(Price ~ Square_Feet + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size, data = train)
+ggplot(train, aes(x = as.factor(Has_Garden), y = Price)) +
+  geom_boxplot()
+ggplot(train, aes(x = as.factor(Has_Pool), y = Price)) +
+  geom_boxplot()
 ```
 
 
