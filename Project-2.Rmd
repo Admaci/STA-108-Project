@@ -1,8 +1,45 @@
 ---
 title: "Project-2"
-author: "Adam Maciaszek, Scott Woolley, Muhamed Hussein, Reagan Bush"
+author: "Adam Maciaszek, Scott Woolley, Mohamed Hussein, Reagan Bush"
 date: "2026-11-15"
 output: html_document
 ---
+
+```{r setup, include=FALSE}
+dat <- read.csv("real_estate_dataset.csv")
+# Drops Id column
+dat[1] <- NULL
+
+set.seed(36473)                 # same seed as Project 1
+n   <- nrow(dat)
+idx <- sample(n, round(0.8 * n))
+train <- dat[sort(idx), ]           # 80%: use for ALL of Project 2
+test  <- dat[-idx, ]                # 20%: LOCKED until the Final Project
+
+
+# Full dataset
+anyNA(dat)
+
+head(train)
+
+library(knitr)
+library(kableExtra)
+```
+
+
+```{r}
+reqs <- c("Observations after removing missing values (at least 100)",
+          "Response Variable is continuous (name and units)",
+          "Number of candidate predictors (4–8), including at least one categorical (name and levels)",
+          "Cross-sectional: one row per unit, not a time series",
+          "Not an R or R-package dataset, a widely used teaching dataset, a Kutner dataset, or a dataset a member has analyzed in another course",
+          "Proposal status: approved / approved with revisions (revisions made: …) / not yet approved")
+ans <- c(n, "Price (of home) in Dollars", "Square Feet, Number of Bedrooms, Number of Bathrooms, Number of Floors, Year Built, Pool Status, Yes or No, Garden Status, Yes or No", "True", "Yes", "Approved")
+data.reqs.check <- data.frame("Requirements" = reqs, "Our Dataset" = ans, check.names = FALSE)
+kable(data.reqs.check, align = "c", caption = "Dataset Requirement Check", format = "latex", booktabs = TRUE, linesep = "\\hline") %>%
+  kable_styling() %>%
+  column_spec(1, width = "7cm") %>% column_spec(2, width = "7cm")
+```
+
 
 
