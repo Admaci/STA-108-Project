@@ -57,6 +57,10 @@ eda <- data.frame(
   Max = sapply(vars, max)
 )
 
+cat_vars <- train[, c("Has_Garden", "Has_Pool")]
+cat_count <- data.frame(
+  yes = 
+)
 
 kable(eda, digits = 2, caption = "Summary Statistics, 400 Houses")
 ```
@@ -64,11 +68,27 @@ kable(eda, digits = 2, caption = "Summary Statistics, 400 Houses")
 
 ```{r}
 pairs(Price ~ Square_Feet + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size, data = train)
+
+round(cor(vars, method = "pearson"), 3)
 ggplot(train, aes(x = as.factor(Has_Garden), y = Price)) +
   geom_boxplot()
 ggplot(train, aes(x = as.factor(Has_Pool), y = Price)) +
   geom_boxplot()
 ```
 
+# III
+
+```{r}
+full.model <- lm(Price ~ Square_Feet + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size + Has_Garden + Has_Pool, data = train)
+
+#betas_summary <- data.frame(
+#  bk = full.model$coef,
+#  Sbk = ,
+#  t = ,
+#  Pvalue = ,
+#  VIF = ,
+#)
+summary(full.model)
+```
 
 
