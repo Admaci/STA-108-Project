@@ -1,0 +1,290 @@
+---
+title: "project 2 problem 4"
+author: "Reagan Bush"
+date: "2026-11-19"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+dat <- read.csv("real_estate_dataset.csv")
+options(scipen = 999)
+# Drops Id column
+dat[1] <- NULL
+dat[10] <- NULL
+dat[9] <- NULL
+
+set.seed(36473)                 # same seed as Project 1
+n   <- nrow(dat)
+idx <- sample(n, round(0.8 * n))
+train <- dat[sort(idx), ]           # 80%: use for ALL of Project 2
+test  <- dat[-idx, ]                # 20%: LOCKED until the Final Project
+
+
+# Full dataset
+anyNA(dat)
+
+colnames(train)[1] <- "Square_Meters"
+head(train)
+
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+```
+
+
+```{r}
+reqs <- c("Observations after removing missing values (at least 100)",
+          "Response Variable is continuous (name and units)",
+          "Number of candidate predictors (4–8), including at least one categorical (name and levels)",
+          "Cross-sectional: one row per unit, not a time series",
+          "Not an R or R-package dataset, a widely used teaching dataset, a Kutner dataset, or a dataset a member has analyzed in another course",
+          "Proposal status: approved / approved with revisions (revisions made: …) / not yet approved")
+ans <- c(n, "Price (of home) in Dollars", "Square Feet, Number of Bedrooms, Number of Bathrooms, Number of Floors, Year Built, Garage Size (m^2), Pool Status: Yes or No, Garden Status: Yes or No", "True", "Yes", "Approved")
+data.reqs.check <- data.frame("Requirements" = reqs, "Our Dataset" = ans, check.names = FALSE)
+kable(data.reqs.check, align = "c", caption = "Dataset Requirement Check", format = "latex", booktabs = TRUE, linesep = "\\hline") %>%
+  kable_styling() %>%
+  column_spec(1, width = "7cm") %>% column_spec(2, width = "7cm")
+```
+
+
+# II
+
+```{r}
+vars <- train[, c("Square_Meters", "Num_Bedrooms", "Num_Bathrooms",
+                  "Num_Floors", "Year_Built", "Garage_Size")]
+eda <- data.frame(
+  n = sapply(vars, length),
+  mean = sapply(vars, mean),
+  SD = sapply(vars, sd),
+  Min = sapply(vars, min),
+  Max = sapply(vars, max)
+)
+
+cat_vars <- train[, c("Has_Garden", "Has_Pool")]
+cat_count <- data.frame(
+  yes = colSums(cat_vars == 1, na.rm = TRUE),
+  no = colSums(cat_vars == 0, na.rm = FALSE)
+)
+
+kable(eda, digits = 2, caption = "Summary Statistics, 400 Houses", align = "rrrrr")
+kable(cat_count, caption = "Count of Each Level", align = "rr")
+```
+
+
+```{r}
+pairs(Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size, data = train)
+
+corr_table <- cor(vars, method = "pearson")
+kable(corr_table, caption = "Correlation Table", digits = 3, align = "rrrrrr")
+ggplot(train, aes(x = as.factor(Has_Garden), y = Price)) +
+  geom_boxplot() +
+  labs(x = "House has a Garden (0 for no, 1 for yes)", y = "Price")
+
+ggplot(train, aes(x = as.factor(Has_Pool), y = Price)) +
+  geom_boxplot() +
+  labs(x = "House has a Pool (0 for no, 1 for yes)", y = "Price")
+```
+
+# III
+
+```{r}
+options(scipen = 0)
+full.model <- lm(Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size + Has_Garden + Has_Pool, data = train)
+
+betas_summary <- data.frame(
+  b_k = summary(full.model)$coefficients[, "Estimate"],
+  Sb_k = summary(full.model)$coefficients[, "Std. Error"],
+  t = summary(full.model)$coefficients[, "t value"],
+  Pvalue = format(summary(full.model)$coefficients[, "Pr(>|t|)"], scientific = TRUE),
+  VIF = c(NA, car::vif(full.model))
+)
+kable(betas_summary, digits = 2, caption = "Summary of Betas Statistics", align = "rrcrr")
+```
+
+# IV
+
+```{r}
+if (!requireNamespace("leaps", quietly = TRUE)) {
+  install.packages("leaps", repos = "https://cloud.r-project.org")
+}
+
+library(leaps)
+```
+
+## a.
+
+```{r}
+best.subsets <- leaps::regsubsets(
+  Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms +
+    Num_Floors + Year_Built + Garage_Size +
+    Has_Garden + Has_Pool,
+  data = train,
+  nvmax = 8
+)
+best.summary <- summary(best.subsets)
+
+best.adjr2 <- which.max(best.summary$adjr2)
+best.cp <- which.min(best.summary$cp)
+best.bic <- which.min(best.summary$bic)
+
+best.adjr2
+best.cp
+best.bic
+
+which.models <- best.summary$which
+
+models <- lapply(1:8, function(i) {
+
+  predictors <- colnames(which.models)[
+    which.models[i, ] &
+      colnames(which.models) != "(Intercept)"
+  ]
+
+  model.formula <- as.formula(
+    paste("Price ~", paste(predictors, collapse = " + "))
+  )
+
+  lm(model.formula, data = train)
+})
+
+AICp <- sapply(models, function(fit) {
+  extractAIC(fit)[2]
+})
+
+n <- nrow(train)
+
+SBCp <- sapply(models, function(fit) {
+  extractAIC(fit, k = log(n))[2]
+})
+
+PRESSp <- sapply(models, function(fit) {
+  sum((resid(fit) / (1 - hatvalues(fit)))^2)
+})
+
+selection.table <- data.frame(
+  Number_of_Predictors = 1:8,
+  Adjusted_R2 = best.summary$adjr2,
+  Cp = best.summary$cp,
+  AICp = AICp,
+  SBCp = SBCp,
+  PRESSp = PRESSp
+)
+
+kable(
+  selection.table,
+  digits = 3,
+  caption = "Best Subsets Model Selection Criteria",
+  align = "c",
+  booktabs = TRUE
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = TRUE,
+    position = "center",
+    font_size = 12
+  ) %>%
+  column_spec(1, width = "3cm") %>%
+  column_spec(2:6, width = "2.5cm")
+
+best.aic <- which.min(AICp)
+best.sbc <- which.min(SBCp)
+best.press <- which.min(PRESSp)
+
+cat("Best Adjusted R-squared:", best.adjr2)
+cat("\nBest Cp:", best.cp)
+cat("\nBest AICp:", best.aic)
+cat("\nBest SBCp:", best.sbc)
+cat("\nBest PRESSp:", best.press)
+
+
+
+```
+
+## b)
+```{r}
+step.model <- step(
+  full.model,
+  direction = "both",
+  trace = 0
+)
+
+summary(step.model)
+
+formula(step.model)
+```
+## c)
+```{r}
+press.model <- models[[best.press]]
+
+candidate.models <- list(
+  Full = full.model,
+  Stepwise = step.model,
+  Best_PRESS = press.model
+)
+
+model.comparison <- data.frame(
+  Model = names(candidate.models),
+
+  Adjusted_R2 = sapply(candidate.models, function(fit) {
+    summary(fit)$adj.r.squared
+  }),
+
+  AICp = sapply(candidate.models, function(fit) {
+    extractAIC(fit)[2]
+  }),
+
+  SBCp = sapply(candidate.models, function(fit) {
+    extractAIC(fit, k = log(n))[2]
+  }),
+
+  PRESSp = sapply(candidate.models, function(fit) {
+    sum((resid(fit) / (1 - hatvalues(fit)))^2)
+  })
+)
+kable(
+  model.comparison,
+  digits = 3,
+  caption = "Comparison of Candidate Regression Models",
+  align = c("l", "c", "c", "c", "c"),
+  booktabs = TRUE,
+  col.names = c(
+    "Candidate Model",
+    "Adjusted R-squared",
+    "AICp",
+    "SBCp",
+    "PRESSp"
+  )
+) %>%
+  kable_styling(
+    latex_options = c("striped", "hold_position"),
+    full_width = FALSE,
+    position = "center",
+    font_size = 11
+  ) %>%
+  column_spec(1, width = "3.5cm", bold = TRUE) %>%
+  column_spec(2:5, width = "2.3cm")
+```
+
+## d)
+```{r}
+garden.reduced <- lm(
+  Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms +
+    Num_Floors + Year_Built + Garage_Size + Has_Pool,
+  data = train
+)
+
+anova(garden.reduced, full.model)
+
+pool.reduced <- lm(
+  Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms +
+    Num_Floors + Year_Built + Garage_Size + Has_Garden,
+  data = train
+)
+
+anova(pool.reduced, full.model)
+
+anova(press.model, full.model)
+```
