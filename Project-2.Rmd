@@ -104,4 +104,189 @@ betas_summary <- data.frame(
 kable(betas_summary, digits = 2, caption = "Summary of Betas Statistics", align = "rrcrr")
 ```
 
+# IV
+
+```{r}
+if (!requireNamespace("leaps", quietly = TRUE)) {
+  install.packages("leaps", repos = "https://cloud.r-project.org")
+}
+
+library(leaps)
+```
+
+## a.
+
+```{r}
+best.subsets <- leaps::regsubsets(
+  Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms +
+    Num_Floors + Year_Built + Garage_Size +
+    Has_Garden + Has_Pool,
+  data = train,
+  nvmax = 8
+)
+best.summary <- summary(best.subsets)
+
+best.adjr2 <- which.max(best.summary$adjr2)
+best.cp <- which.min(best.summary$cp)
+best.bic <- which.min(best.summary$bic)
+
+best.adjr2
+best.cp
+best.bic
+
+which.models <- best.summary$which
+
+models <- lapply(1:8, function(i) {
+
+  predictors <- colnames(which.models)[
+    which.models[i, ] &
+      colnames(which.models) != "(Intercept)"
+  ]
+
+  model.formula <- as.formula(
+    paste("Price ~", paste(predictors, collapse = " + "))
+  )
+
+  lm(model.formula, data = train)
+})
+
+AICp <- sapply(models, function(fit) {
+  extractAIC(fit)[2]
+})
+
+n <- nrow(train)
+
+SBCp <- sapply(models, function(fit) {
+  extractAIC(fit, k = log(n))[2]
+})
+
+PRESSp <- sapply(models, function(fit) {
+  sum((resid(fit) / (1 - hatvalues(fit)))^2)
+})
+
+selection.table <- data.frame(
+  Number_of_Predictors = 1:8,
+  Adjusted_R2 = best.summary$adjr2,
+  Cp = best.summary$cp,
+  AICp = AICp,
+  SBCp = SBCp,
+  PRESSp = PRESSp
+)
+
+kable(
+  selection.table,
+  digits = 3,
+  caption = "Best Subsets Model Selection Criteria",
+  align = "c",
+  booktabs = TRUE
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = TRUE,
+    position = "center",
+    font_size = 12
+  ) %>%
+  column_spec(1, width = "3cm") %>%
+  column_spec(2:6, width = "2.5cm")
+
+best.aic <- which.min(AICp)
+best.sbc <- which.min(SBCp)
+best.press <- which.min(PRESSp)
+
+cat("Best Adjusted R-squared:", best.adjr2)
+cat("\nBest Cp:", best.cp)
+cat("\nBest AICp:", best.aic)
+cat("\nBest SBCp:", best.sbc)
+cat("\nBest PRESSp:", best.press)
+
+
+
+```
+
+## b)
+```{r}
+step.model <- step(
+  full.model,
+  direction = "both",
+  trace = 0
+)
+
+summary(step.model)
+
+formula(step.model)
+```
+## c)
+```{r}
+press.model <- models[[best.press]]
+
+candidate.models <- list(
+  Full = full.model,
+  Stepwise = step.model,
+  Best_PRESS = press.model
+)
+
+model.comparison <- data.frame(
+  Model = names(candidate.models),
+
+  Adjusted_R2 = sapply(candidate.models, function(fit) {
+    summary(fit)$adj.r.squared
+  }),
+
+  AICp = sapply(candidate.models, function(fit) {
+    extractAIC(fit)[2]
+  }),
+
+  SBCp = sapply(candidate.models, function(fit) {
+    extractAIC(fit, k = log(n))[2]
+  }),
+
+  PRESSp = sapply(candidate.models, function(fit) {
+    sum((resid(fit) / (1 - hatvalues(fit)))^2)
+  })
+)
+kable(
+  model.comparison,
+  digits = 3,
+  caption = "Comparison of Candidate Regression Models",
+  align = c("l", "c", "c", "c", "c"),
+  booktabs = TRUE,
+  col.names = c(
+    "Candidate Model",
+    "Adjusted R-squared",
+    "AICp",
+    "SBCp",
+    "PRESSp"
+  )
+) %>%
+  kable_styling(
+    latex_options = c("striped", "hold_position"),
+    full_width = FALSE,
+    position = "center",
+    font_size = 11
+  ) %>%
+  column_spec(1, width = "3.5cm", bold = TRUE) %>%
+  column_spec(2:5, width = "2.3cm")
+```
+
+## d)
+```{r}
+garden.reduced <- lm(
+  Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms +
+    Num_Floors + Year_Built + Garage_Size + Has_Pool,
+  data = train
+)
+
+anova(garden.reduced, full.model)
+
+pool.reduced <- lm(
+  Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms +
+    Num_Floors + Year_Built + Garage_Size + Has_Garden,
+  data = train
+)
+
+anova(pool.reduced, full.model)
+
+anova(press.model, full.model)
+```
+# V
 
