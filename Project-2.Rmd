@@ -2,10 +2,13 @@
 title: "Project-2"
 author: "Adam Maciaszek, Scott Woolley, Mohamed Hussein, Reagan Bush"
 date: "2026-11-15"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
 dat <- read.csv("real_estate_dataset.csv")
 options(scipen = 999)
 # Drops Id column
@@ -59,21 +62,27 @@ eda <- data.frame(
 
 cat_vars <- train[, c("Has_Garden", "Has_Pool")]
 cat_count <- data.frame(
-  yes = 
+  yes = colSums(cat_vars == 1, na.rm = TRUE),
+  no = colSums(cat_vars == 0, na.rm = FALSE)
 )
 
-kable(eda, digits = 2, caption = "Summary Statistics, 400 Houses")
+kable(eda, digits = 2, caption = "Summary Statistics, 400 Houses", align = "rrrrr")
+kable(cat_count, caption = "Count of Each Level", align = "rr")
 ```
 
 
 ```{r}
 pairs(Price ~ Square_Feet + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size, data = train)
 
-round(cor(vars, method = "pearson"), 3)
+corr_table <- cor(vars, method = "pearson")
+kable(corr_table, caption = "Correlation Table", digits = 3, align = "rrrrrr")
 ggplot(train, aes(x = as.factor(Has_Garden), y = Price)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x = "House has a Garden (0 for no, 1 for yes)", y = "Price")
+
 ggplot(train, aes(x = as.factor(Has_Pool), y = Price)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x = "House has a Pool (0 for no, 1 for yes)", y = "Price")
 ```
 
 # III
@@ -82,15 +91,14 @@ ggplot(train, aes(x = as.factor(Has_Pool), y = Price)) +
 options(scipen = 0)
 full.model <- lm(Price ~ Square_Feet + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size + Has_Garden + Has_Pool, data = train)
 
-#betas_summary <- data.frame(
-#  bk = summary(full.model)$coefficients[, "Estimate],
-#  Sbk = summary(full.model)$coefficients[, "Std. Error],
-#  t = summary(full.model)$coefficients[, "t value],
-#  Pvalue = summary(full.model)$coefficients[, "Pr(>|t|)],
-#  VIF = car::vif(full.model),
-#)
-summary(full.model)$coefficients
-car::vif(full.model)
+betas_summary <- data.frame(
+  b_k = summary(full.model)$coefficients[, "Estimate"],
+  Sb_k = summary(full.model)$coefficients[, "Std. Error"],
+  t = summary(full.model)$coefficients[, "t value"],
+  Pvalue = format(summary(full.model)$coefficients[, "Pr(>|t|)"], scientific = TRUE),
+  VIF = c(NA, car::vif(full.model))
+)
+kable(betas_summary, digits = 2, caption = "Summary of Betas Statistics", align = "rrcrr")
 ```
 
 
