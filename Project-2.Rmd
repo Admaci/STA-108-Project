@@ -79,16 +79,18 @@ ggplot(train, aes(x = as.factor(Has_Pool), y = Price)) +
 # III
 
 ```{r}
+options(scipen = 0)
 full.model <- lm(Price ~ Square_Feet + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size + Has_Garden + Has_Pool, data = train)
 
 #betas_summary <- data.frame(
-#  bk = full.model$coef,
-#  Sbk = ,
-#  t = ,
-#  Pvalue = ,
-#  VIF = ,
+#  bk = summary(full.model)$coefficients[, "Estimate],
+#  Sbk = summary(full.model)$coefficients[, "Std. Error],
+#  t = summary(full.model)$coefficients[, "t value],
+#  Pvalue = summary(full.model)$coefficients[, "Pr(>|t|)],
+#  VIF = car::vif(full.model),
 #)
-summary(full.model)
+summary(full.model)$coefficients
+car::vif(full.model)
 ```
 
 
