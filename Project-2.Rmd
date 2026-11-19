@@ -13,6 +13,8 @@ dat <- read.csv("real_estate_dataset.csv")
 options(scipen = 999)
 # Drops Id column
 dat[1] <- NULL
+dat[10] <- NULL
+dat[9] <- NULL
 
 set.seed(36473)                 # same seed as Project 1
 n   <- nrow(dat)
@@ -24,6 +26,7 @@ test  <- dat[-idx, ]                # 20%: LOCKED until the Final Project
 # Full dataset
 anyNA(dat)
 
+colnames(train)[1] <- "Square_Meters"
 head(train)
 
 library(ggplot2)
@@ -50,7 +53,7 @@ kable(data.reqs.check, align = "c", caption = "Dataset Requirement Check", forma
 # II
 
 ```{r}
-vars <- train[, c("Square_Feet", "Num_Bedrooms", "Num_Bathrooms",
+vars <- train[, c("Square_Meters", "Num_Bedrooms", "Num_Bathrooms",
                   "Num_Floors", "Year_Built", "Garage_Size")]
 eda <- data.frame(
   n = sapply(vars, length),
@@ -72,7 +75,7 @@ kable(cat_count, caption = "Count of Each Level", align = "rr")
 
 
 ```{r}
-pairs(Price ~ Square_Feet + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size, data = train)
+pairs(Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size, data = train)
 
 corr_table <- cor(vars, method = "pearson")
 kable(corr_table, caption = "Correlation Table", digits = 3, align = "rrrrrr")
@@ -89,7 +92,7 @@ ggplot(train, aes(x = as.factor(Has_Pool), y = Price)) +
 
 ```{r}
 options(scipen = 0)
-full.model <- lm(Price ~ Square_Feet + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size + Has_Garden + Has_Pool, data = train)
+full.model <- lm(Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size + Has_Garden + Has_Pool, data = train)
 
 betas_summary <- data.frame(
   b_k = summary(full.model)$coefficients[, "Estimate"],
