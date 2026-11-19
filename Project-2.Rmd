@@ -13,8 +13,8 @@ dat <- read.csv("real_estate_dataset.csv")
 options(scipen = 999)
 # Drops Id column
 
+dat[11] <- NULL
 dat[10] <- NULL
-dat[9] <- NULL
 
 set.seed(36473)                 # same seed as Project 1
 n   <- nrow(dat)
