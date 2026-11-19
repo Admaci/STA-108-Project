@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = FALSE)
 dat <- read.csv("real_estate_dataset.csv")
 options(scipen = 999)
 # Drops Id column
-dat[1] <- NULL
+
 dat[10] <- NULL
 dat[9] <- NULL
 
@@ -26,7 +26,7 @@ test  <- dat[-idx, ]                # 20%: LOCKED until the Final Project
 # Full dataset
 anyNA(dat)
 
-colnames(train)[1] <- "Square_Meters"
+colnames(train)[2] <- "Square_Meters"
 head(train)
 
 library(ggplot2)
@@ -288,3 +288,8 @@ anova(pool.reduced, full.model)
 
 anova(press.model, full.model)
 ```
+
+```{r appendix, ref.label = knitr::all_labels(), echo = TRUE, eval = FALSE}
+sessionInfo()
+```
+
