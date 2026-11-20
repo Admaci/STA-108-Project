@@ -341,3 +341,42 @@ bonf.beta[c("Square_Meters", "Num_Bathrooms", "Garage_Size"), , drop = FALSE]
 sessionInfo()
 ```
 
+```{r}
+#Finding realistic predictor profiles
+temp.train <- train
+temp.train$pred <- predict(full.model)
+temp.train <- temp.train[order(temp.train$pred), ]
+id <- round(quantile(1:nrow(temp.train), probs = c(0.15, 0.5, 0.85)))
+profiles <- temp.train[id, ]
+
+#Creating intervals
+g <- 3
+mean.response.CI <- predict(full.model, newdata = profiles, interval = "confidence", level = 0.95)
+new.obs.PI <- predict(full.model, newdata = profiles, interval = "prediction", level = 0.95)
+sim.mean.response.CI <- predict(full.model, newdata = profiles, interval = "confidence", level = 1 - (0.05/g))
+sim.PI <- predict(full.model, newdata = profiles, interval = "prediction", level = 1-0.05/g)
+#Testing which value is smaller Scheffé or Bonferroni
+df <- df.residual(full.model)
+B <- qt(1 - 0.05 / (2 * g), df = df)
+S <- sqrt(g * qf(1 - 0.05, df1 = g, df2 = df))
+
+#Format multipler table
+crit.val.table <- data.frame("Critical Value Type" = c("Scheffé", "Bonferroni"), "Multipler" = c(S, B), check.names = FALSE)
+kable(crit.val.table, align = "c", caption = "Bonferroni vs. Scheffé Multiplers", escape = FALSE)
+
+#Format interval table
+profile <- profiles$ID
+fit <- c(mean.response.CI[1,1], mean.response.CI[2,1], mean.response.CI[3,1])
+
+list1 <- c(paste(round(mean.response.CI[1,2]/1000,1), round(mean.response.CI[1,3]/1000,1), sep = ", "), paste(round(mean.response.CI[2,2]/1000,1), round(mean.response.CI[2,3]/1000,1), sep = ", "), paste(round(mean.response.CI[3,2]/1000,1), round(mean.response.CI[3,3]/1000,1), sep = ", "))
+
+list2 <- c(paste(round(new.obs.PI[1,2]/1000,1), round(new.obs.PI[1,3]/1000,1), sep = ", "), paste(round(new.obs.PI[2,2]/1000,1), round(new.obs.PI[2,3]/1000,1), sep = ", "), paste(round(new.obs.PI[3,2]/1000,1), round(new.obs.PI[3,3]/1000,1), sep = ", "))
+
+list3 <-c(paste(round(sim.mean.response.CI[1,2]/1000,1), round(sim.mean.response.CI[1,3]/1000,1), sep = ", "), paste(round(sim.mean.response.CI[2,2]/1000,1), round(sim.mean.response.CI[2,3]/1000,1), sep = ", "), paste(round(sim.mean.response.CI[3,2]/1000,1), round(sim.mean.response.CI[3,3]/1000,1), sep = ", "))
+
+list4 <-c(paste(round(sim.PI[1,2]/1000,1), round(sim.PI[1,3]/1000,1), sep = ", "), paste(round(sim.PI[2,2]/1000,1), round(sim.PI[2,3]/1000,1), sep = ", "), paste(round(sim.PI[3,2]/1000,1), round(sim.PI[3,3]/1000,1), sep = ", "))
+
+total.interval.table <- data.frame(Profile = profile, Fit = fit/1000, "Mean Response CI" = list1, "Prediction Interval" = list2, "Simultaneous Mean Response CI" = list3, "Simultaneous Prediction Interval" = list4, check.names = FALSE)
+kable(total.interval.table, align = "c", caption = "Housing Price Intervals ($ in thousands)")
+```
+
