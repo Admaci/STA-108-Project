@@ -300,6 +300,43 @@ anova(pool.reduced, full.model)
 anova(press.model, full.model)
 ```
 
+#V
+```{r}
+final.model <- full.model
+
+r <- resid(final.model)
+yhat <- fitted(final.model)
+
+plot(yhat, r, pch = 16, cex = 0.5, xlab = "Fitted Price", ylab = "Residuals", main = "Residuals vs Fitted")
+abline(h = 0, lty = 2, col = "red")
+
+qqnorm(r, pch = 16, cex = 0.5, main = "Normal Q-Q Plot of Residuals")
+qqline(r, col = "red", lwd = 1)
+
+std.res <- rstandard(final.model)
+leverage <- hatvalues(final.model)
+n <- nobs(final.model)
+p <- length(coef(final.model))
+
+train$ID[which(abs(std.res) > 3)]
+train$ID[which(leverage > 2 * p / n)]
+```
+#VI
+```{r}
+s <- summary(final.model)
+
+s$r.squared
+s$adj.r.squared
+s$fstatistic[1]
+pf(s$fstatistic[1], df1 = s$fstatistic[2], df2 = s$fstatistic[3], lower.tail = FALSE)
+
+alpha <- 0.05
+g.beta <- 2
+
+bonf.beta <- confint(final.model, level = 1 - alpha / g.beta)
+bonf.beta[c("Square_Meters", "Num_Bathrooms", "Garage_Size"), , drop = FALSE]
+```
+
 ```{r appendix, ref.label = knitr::all_labels(), echo = TRUE, eval = FALSE}
 sessionInfo()
 ```
