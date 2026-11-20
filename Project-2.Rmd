@@ -49,6 +49,16 @@ kable(data.reqs.check, align = "c", caption = "Dataset Requirement Check", forma
   column_spec(1, width = "7cm") %>% column_spec(2, width = "7cm")
 ```
 
+# Variable Table
+```{r}
+role <- c("Response", "Predictor", "Predictor", "Predictor", "Predictor", "Predictor", "Predictor", "Predictor", "Predictor")
+symbol <- c("Y", "$X_{1}$", "$X_{2}$", "$X_{3}$", "$X_{4}$", "$X_{5}$", "$X_{6}$", "$X_{7}$", "$X_{8}$")
+var.name <- c("House Price", "Square Feet", "Number of Bedrooms", "Number of Bathrooms", "Number of Floors", "Year Built", "Garden, Yes or No", "Pool, Yes or No", "Garage Size")
+units <- c("$ Dollars", "$meters^2$", "Count", "Count", "Count", "Years", "Yes or No", "Yes or No", "$meters^2$")
+type <- c("Continuous", "Continuous", "Discrete", "Discrete", "Discrete", "Discrete", "Categorical", "Categorical", "Continuous")
+variable.table <- data.frame(Role = role, Symbol = symbol, Name = var.name, Type = type, Units = units)
+kable(variable.table, align = "c", caption = "Variables")
+```
 
 # II
 
