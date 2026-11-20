@@ -79,14 +79,25 @@ pairs(Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_B
 
 corr_table <- cor(vars, method = "pearson")
 kable(corr_table, caption = "Correlation Table", digits = 3, align = "rrrrrr")
-ggplot(train, aes(x = as.factor(Has_Garden), y = Price)) +
+
+garden.box <- ggplot(train, aes(x = as.factor(Has_Garden), y = Price)) +
   geom_boxplot() +
   labs(x = "House has a Garden (0 for no, 1 for yes)", y = "Price")
-
-ggplot(train, aes(x = as.factor(Has_Pool), y = Price)) +
+garden.box
+pool.box <- ggplot(train, aes(x = as.factor(Has_Pool), y = Price)) +
   geom_boxplot() +
   labs(x = "House has a Pool (0 for no, 1 for yes)", y = "Price")
+pool.box
 ```
+
+```{r}
+#obtaining unusual points by ID
+outliers <- boxplot(train$Price, plot = FALSE)$out
+id.outliers <- train$ID[train$Price %in% outliers]
+
+id.outliers
+```
+
 
 # III
 
