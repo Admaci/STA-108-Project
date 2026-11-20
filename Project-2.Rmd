@@ -337,11 +337,6 @@ bonf.beta <- confint(final.model, level = 1 - alpha / g.beta)
 bonf.beta[c("Square_Meters", "Num_Bathrooms", "Garage_Size"), , drop = FALSE]
 ```
 
-```{r appendix, ref.label = knitr::all_labels(), echo = TRUE, eval = FALSE}
-sessionInfo()
-```
-
-
 ## VII
 ```{r}
 #Finding realistic predictor profiles
@@ -380,5 +375,11 @@ list4 <-c(paste(round(sim.PI[1,2]/1000,1), round(sim.PI[1,3]/1000,1), sep = ", "
 
 total.interval.table <- data.frame(Profile = profile, Fit = fit/1000, "Mean Response CI" = list1, "Prediction Interval" = list2, "Simultaneous Mean Response CI" = list3, "Simultaneous Prediction Interval" = list4, check.names = FALSE)
 kable(total.interval.table, align = "c", caption = "Housing Price Intervals ($ in thousands)")
+
+
+
 ```
 
+```{r appendix, ref.label = knitr::all_labels(), echo = TRUE, eval = FALSE}
+sessionInfo()
+```
