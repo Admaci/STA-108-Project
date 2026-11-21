@@ -85,18 +85,19 @@ kable(cat_count, caption = "Count of Each Level", align = "rr")
 
 
 ```{r}
-pairs(Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size, data = train, pch = 16, cex = .4)
+pairs(Price ~ Square_Meters + Num_Bedrooms + Num_Bathrooms + Num_Floors + Year_Built + Garage_Size, data = train, pch = 16, cex = .4, main = "Predictors Show no Correlation With Each Other and
+      Have a Linear Relationship With Price", cex.main = .75)
 
 corr_table <- cor(vars, method = "pearson")
 kable(corr_table, caption = "Correlation Table", digits = 3, align = "rrrrrr")
 
 garden.box <- ggplot(train, aes(x = as.factor(Has_Garden), y = Price)) +
   geom_boxplot() +
-  labs(x = "House has a Garden (0 for no, 1 for yes)", y = "Price")
+  labs(x = "House has a Garden (0 for no, 1 for yes)", y = "Price ($)", title = "Houses With a Garden Cost More on Average Than Those Without one")
 garden.box
 pool.box <- ggplot(train, aes(x = as.factor(Has_Pool), y = Price)) +
   geom_boxplot() +
-  labs(x = "House has a Pool (0 for no, 1 for yes)", y = "Price")
+  labs(x = "House has a Pool (0 for no, 1 for yes)", y = "Price ($)", title = "Houses With a Pool Cost More on Average Than Those Without")
 pool.box
 ```
 
@@ -106,6 +107,9 @@ outliers <- boxplot(train$Price, plot = FALSE)$out
 id.outliers <- train$ID[train$Price %in% outliers]
 
 id.outliers
+ggplot(train, aes(y = Price, x = factor(1))) + geom_boxplot() + 
+  geom_text(data = subset(train, ID %in% id.outliers), aes(label = ID),
+            hjust = -.3, color = "red") + labs(x = NULL, y = "Price ($)")
 ```
 
 
@@ -317,10 +321,10 @@ final.model <- full.model
 r <- resid(final.model)
 yhat <- fitted(final.model)
 
-plot(yhat, r, pch = 16, cex = 0.5, xlab = "Fitted Price", ylab = "Residuals", main = "Residuals vs Fitted")
+plot(yhat, r, pch = 16, cex = 0.5, xlab = "Fitted Price ($)", ylab = "Residuals ($)", main = "There is a Linear Relationship with Homoscedasticity")
 abline(h = 0, lty = 2, col = "red")
 
-qqnorm(r, pch = 16, cex = 0.5, main = "Normal Q-Q Plot of Residuals")
+qqnorm(r, pch = 16, cex = 0.5, main = "Normal Distribution With Slight Left Skew")
 qqline(r, col = "red", lwd = 1)
 
 std.res <- rstandard(final.model)
